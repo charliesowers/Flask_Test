@@ -1,0 +1,386 @@
+{#- This is a Jinja template - Flask uses Jinja as its templating engine. Jinja
+    will process this file looking for directives to define a template based on
+    the passed-in variables. This template relies on the `table`, `header`, and
+    `username` variables to be declared.
+    
+    A Jinja directive will start with a "{%" and Jinja comments will begin with
+    a "{#". Both are ended with the same symbol and the closing brace "}".
+    
+    If a dash "-" is provided before the opening or closing symbol for a
+    directive, Jinja will ignore all whitespace up to that side of the directive
+    in the template. -#}
+<!doctype html>
+<html xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+<head>
+  <title>Flask Example</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+
+    .line {
+          fill: none;
+          stroke-width: 3;
+      }
+        
+      .overlay {
+        fill: none;
+        pointer-events: all;
+      }
+      
+      /* Style the dots by assigning a fill and stroke */
+      .dot {
+          
+          stroke: #fff;
+      }
+        
+        .focus circle {
+        stroke: steelblue;
+      }
+       
+    </style>
+
+<!--[if gte mso 9]><xml>
+<mso:CustomDocumentProperties>
+<mso:display_urn_x003a_schemas-microsoft-com_x003a_office_x003a_office_x0023_Editor msdt:dt="string">Hull, Matthew D</mso:display_urn_x003a_schemas-microsoft-com_x003a_office_x003a_office_x0023_Editor>
+<mso:xd_Signature msdt:dt="string"></mso:xd_Signature>
+<mso:Order msdt:dt="string">313600.000000000</mso:Order>
+<mso:ComplianceAssetId msdt:dt="string"></mso:ComplianceAssetId>
+<mso:TemplateUrl msdt:dt="string"></mso:TemplateUrl>
+<mso:xd_ProgID msdt:dt="string"></mso:xd_ProgID>
+<mso:_ExtendedDescription msdt:dt="string"></mso:_ExtendedDescription>
+<mso:display_urn_x003a_schemas-microsoft-com_x003a_office_x003a_office_x0023_Author msdt:dt="string">Hull, Matthew D</mso:display_urn_x003a_schemas-microsoft-com_x003a_office_x003a_office_x0023_Author>
+<mso:ContentTypeId msdt:dt="string">0x0101008ED456B09E29044F8DC06CE1A56FBBB8</mso:ContentTypeId>
+<mso:_SourceUrl msdt:dt="string"></mso:_SourceUrl>
+<mso:_SharedFileIndex msdt:dt="string"></mso:_SharedFileIndex>
+<mso:TriggerFlowInfo msdt:dt="string"></mso:TriggerFlowInfo>
+<mso:MediaLengthInSeconds msdt:dt="string"></mso:MediaLengthInSeconds>
+</mso:CustomDocumentProperties>
+</xml><![endif]-->
+</head>
+
+<body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.0.0/d3.js"></script>
+
+  <label for="actDropdown">Select actor:</label>
+    <select name="actDropdown" id="actDropdown"></select>
+
+  <script>
+
+var actors = [{'id': '2975', 'name': 'Laurence Fishburne'}, {'id': '6384', 'name': 'Keanu Reeves'}, {'id': '530', 'name':'Carrie-Anne Moss' }, {'id': '1107983', 'name': 'Martin Luther King Jr.'}]
+
+    d3.select("#actDropdown").append('g')
+
+    d3.select("#actDropdown").selectAll('option').data(actors).enter()
+    .append('option')
+    .text(function (d) { return d['name']; }) // text showed in the menu
+    .attr("value", function (d) { return d['id']; })
+
+d3.select("#actDropdown").on("change", function(d) {
+            // recover the option that has been chosen
+            var actor = d3.select(this).property("value")
+            // run the updateChart function with this selected option
+            listCharacters(actor)
+        })
+
+listCharacters('2975')
+
+var margin = {top: window.innerHeight/10, right: window.innerWidth/10, bottom: window.innerHeight/10, left: window.innerWidth/10}
+, width = (window.innerWidth - margin.left - margin.right)*4/5 // Use the window's width 
+, height = (window.innerHeight - margin.top - margin.bottom)*4/5;
+
+var svg = d3.select("body").append("svg")
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom)
+  .attr("id", "line_chart")
+
+var barHeight = 20
+var x = 100
+
+function listCharacters(actor){ 
+  d3.json("http://127.0.0.1:5000/get_data?actor=" + actor).then( 
+    function(data){
+
+      console.log(data);
+
+      svg.selectAll("g").remove()
+
+      var bar = svg.selectAll("g")
+      .data(data)
+      .enter().append("g")
+      .attr("transform", function(d, i) { return "translate(0," + i * barHeight + ")"; });
+
+      bar.append("text")
+          .attr("x", 0)
+          .attr("y", barHeight / 2)
+          .attr("dy", ".35em")
+          .text(function(d) { return d["character"]; });
+
+    // svg.selectAll("text").data(data).enter().append("text")
+    //   .text(function(d) { return d["character"]})
+
+
+  // d3.dsv(",", pathToCsv, function (d) {
+  //   return  {
+  //     name: d.name,
+  //     year: parseInt(d.year),
+  //     rating: Math.floor(d.average_rating),
+  //     users_rated: parseInt(d.users_rated)
+  //   }
+  // }).then(function (data) {
+  //   console.log(data); // you should see the data in your browser's developer tools console
+
+    /* Create bar plot using data from csv */
+
+  //   var margin = {top: window.innerHeight/10, right: window.innerWidth/10, bottom: window.innerHeight/10, left: window.innerWidth/10}
+  //     , width = (window.innerWidth - margin.left - margin.right)*4/5 // Use the window's width 
+  //     , height = (window.innerHeight - margin.top - margin.bottom)*4/5;
+
+  //   var years = [2015, 2016, 2017, 2018, 2019]
+
+  //   var maxrate = 0;
+  //   for (let i = 0; i < data.length; i++) {
+  //     maxrate = (data[i].rating > maxrate ? data[i].rating : maxrate)
+  //   }
+
+  //   // console.log(maxrate)
+
+  //   var datarate = [];
+  //   var maxcount = 0;
+
+  //   for (let i = 0; i < maxrate+1; i++) {
+  //     for (let k = 0; k < years.length; k++) {
+  //       count = data.filter(function(value, index, Arr) {return value.rating == i && value.year == years[k];}).length
+  //       maxcount = (count > maxcount ? count : maxcount)
+  //       datarate.push({
+  //         count: count,
+  //         year: years[k],
+  //         rating: i
+  //       })
+  //     }
+  //   }
+
+  //   var xScale = d3.scaleLinear()
+  //       .domain([0, maxrate]) // input
+  //       .range([0, width]); // output
+    
+  //   // 6. Y scale will use the randomly generate number 
+  //   var yScale = d3.scaleLinear()
+  //       .domain([0, maxcount]) // input 
+  //       .range([height, 0]); // output 
+    
+  //   // 7. d3's line generator
+  //   var line = d3.line()
+  //       .x(function(d, i) { return xScale(i); }) // set the x values for the line generator
+  //       .y(function(d) { return yScale(d.count); }) // set the y values for the line generator 
+  //       .curve(d3.curveMonotoneX) // apply smoothing to the line
+    
+  //   // 8. An array of objects of length N. Each object has key -> value pair, the key being "y" and the value is a random number
+  //   var colors = d3.schemeCategory10;
+    
+  //   // 1. Add the SVG to the page and employ #2
+  //   var svg = d3.select("body").append("svg")
+  //       .attr("width", width + margin.left + margin.right)
+  //       .attr("height", height + margin.top + margin.bottom)
+  //       .attr("id", "line_chart")
+
+  //   var container1 = svg
+  //       .append("g")
+  //       .attr("transform", "translate(" + margin.left + "," + margin.top + ")").attr('id', 'container');
+
+  //   var linescont = container1.append('g').attr('id', 'lines')
+  //   var circscont = container1.append('g').attr('id', 'circles')
+    
+  //   // 3. Call the x axis in a group tag
+  //   container1.append("g")
+  //       .attr("class", "x axis").attr("id", "x-axis-lines")
+  //       .attr("transform", "translate(0," + height + ")")
+  //       .call(d3.axisBottom(xScale)); // Create an axis component with d3.axisBottom
+    
+  //   // 4. Call the y axis in a group tag
+  //   container1.append("g")
+  //       .attr("class", "y axis").attr("id", "y-axis-lines")
+  //       .call(d3.axisLeft(yScale)); // Create an axis component with d3.axisLeft
+    
+  //   // 9. Append the path, bind the data, and call the line generator 
+    
+  //   for (let i = 0; i < years.length; i++) {
+
+  //     datafil = datarate.filter(function(value, index, Arr) {return value.year == years[i];})
+
+  //     linescont.append("path")
+  //         .datum(datafil) // 10. Binds data to the line 
+  //         .attr("class", "line") // Assign a class for styling 
+  //         .attr("d", line).attr('stroke', colors[i]);
+
+  //     circscont.selectAll(".dot"+years[i])
+  //         .data(datafil)
+  //         .enter().append("circle") // Uses the enter().append() method
+  //         .attr("class", "dot") // Assign a class for styling
+  //         .attr("cx", function(d, j) { return xScale(j) })
+  //         .attr("cy", function(d) { return yScale(d.count) })
+  //         .attr("r", 5)
+  //         .attr('fill', colors[i])
+  //         .on("mouseover", handleMouseOver)
+  //         .on("mouseout", handleMouseOut);
+  //   }
+
+  //   container1.append("text")
+  //     .attr("id", "line_chart_title")
+  //     .attr("text-anchor", "end")
+  //     .attr("x", 700)
+  //     .attr("y", -20)
+  //     .text("Board games by Rating 2015-2019");
+
+  //     // Add the text label for X Axis
+  //   container1.append("text")
+  //   .attr("id", "x_axis_label")
+  //   .attr("text-anchor", "end")
+  //   .attr("x", width/2)
+  //   .attr("y", height+20)
+  //   .attr('fill', 'black')
+  //   .text("Rating");
+
+  //   // Add the text label for Y Axis
+  //   container1.append("text")
+  //   .attr("id", "y_axis_label")
+  //   .attr("text-anchor", "end")
+  //   .attr("y", -70)
+  //   .attr("x", -(width/4) + 150)
+  //   .attr('fill', 'black')
+  //   // .attr("dy", ".75em")
+  //   .attr("transform", "rotate(-90)")
+  //   .text("Count");
+
+  //   var legend = container1.append("g").attr("id", "legend")
+
+  //   legend.selectAll("mydots")
+  //   .data(years)
+  //   .enter()
+  //   .append("circle")
+  //   .attr("cx", width)
+  //   .attr("cy", function(d,i){ return height/2 + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
+  //   .attr("r", 7)
+  //   .style("fill", function(d,i){ return colors[i]})
+
+  //   legend.selectAll("mylabels")
+  //     .data(years)
+  //     .enter()
+  //     .append("text")
+  //     .attr("x", width+10)
+  //     .attr("y", function(d,i){ return height/2 + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
+  //     .style("fill", function(d,i){ return colors[i]})
+  //     .text(function(d){ return d})
+  //     .attr("text-anchor", "left")
+  //     .style("alignment-baseline", "middle")
+
+      
+  //     var title = d3.select("body").append("div").attr('id', 'bar_chart_title')
+
+  //     var margin2 = {top: window.innerHeight/10, right: window.innerWidth/10, bottom: window.innerHeight/10, left: window.innerWidth/10}
+  //     , width2 = window.innerWidth/1.5 - margin2.left - margin2.right // Use the window's width 
+  //     , height2 = (window.innerHeight/3 - margin2.top - margin2.bottom);
+
+  //     var svg2 = d3.select("body").append("svg")
+  //           .attr("width", width2 + margin2.left + margin2.right)
+  //           .attr("height", height2 + margin2.top + margin2.bottom)
+  //           .attr("id", "bar_chart")
+
+  //     var container2 = svg2
+  //           .append("g")
+  //           .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")").attr('id', 'container_2');
+
+
+  //     var bars = container2.append("g").attr('id', 'bars')
+
+  //   function handleMouseOver(d, i) {  // Add interactivity
+
+  //     d3.select(this).attr('r', 10);
+
+  //     d3.select("#bar_chart_title").text('Top 5 Most Rated Games of ' + d.year + ' with Rating ' + d.rating).attr('display', 'inline')
+
+  //     databar = data.filter(function(value, index, Arr) {return value.rating == d.rating && value.year == d.year;})
+      
+  //     if (databar.length > 0){
+
+  //     databar.sort((a,b) => (a.users_rated > b.users_rated) ? -1 : ((b.users_rated > a.users_rated) ? 1 : 0))
+
+  //     databar = databar.slice(0,5)
+  //     console.log(databar)
+
+  //     var x = d3.scaleLinear()
+  //     .range([0, width2]);
+  //     var y = d3.scaleLinear()
+  //     .range([height2, height2*1/5]);
+
+  //     x.domain([0, databar[0].users_rated]);
+  //     y.domain([0, 4]);
+
+  //     bars.selectAll("rect").remove()
+
+  //     bars.selectAll("rect")
+  //       .data(databar)
+  //       .enter()
+  //       .append("rect")
+  //       .attr("y", function(d,i) {
+  //         return height2- y(i);  
+  //       }).attr("height", (height2 / databar.length-1))
+  //       .attr("x", function(d) {
+  //         return 0})  //Height minus data value
+  //       .attr("width", function(d) {
+  //         return x(d.users_rated);  //Just the data value
+  //       }).attr("fill", "teal")
+
+  //       container2.select('#x-axis-bars').remove()
+  //       container2.select('#y-axis-bars').remove()
+  //       container2.select('#bar_y_axis_label').remove()
+  //       container2.select('#bar_x_axis_label').remove()
+
+  //       container2.append("g")
+  //       .attr("id", "x-axis-bars")
+  //       .attr("transform", "translate(0," + (height2) + ")")
+  //       .call(d3.axisBottom().scale(x).tickSize(-height2));
+
+  //       container2.append("g")
+  //       .attr("id", "y-axis-bars")
+  //       .call(d3.axisLeft().scale(y).tickValues([0.5, 1.5, 2.5, 3.5, 4.5].slice(0,databar.length)).tickFormat((d,i) => databar[i].name.slice(0, 10)));
+
+  //       container2.append("text")
+  //       .attr("id", "bar_x_axis_label")
+  //       .attr("text-anchor", "end")
+  //       .attr("x", width2/2)
+  //       .attr("y", height2+30)
+  //       .text("Number of users");
+
+  //       container2.append("text")
+  //       .attr("id", "bar_y_axis_label")
+  //       .attr("text-anchor", "end")
+  //       .attr("y", 0)
+  //       .attr("x", 0)
+  //       // .attr("dy", ".75em")
+  //       .attr("transform", "rotate(-90)")
+  //       .text("Games");
+
+  //       d3.select("#bar_chart").attr('display', 'inline');
+  //     }
+  //   }
+
+  //   function handleMouseOut(d, i) {
+  //     d3.select(this).attr('r', 5);
+
+  //     // Select text by id and then remove
+  //     d3.select("#bar_chart").attr('display', 'none');  // Remove text location
+  //     d3.select("#bar_chart_title").text('');
+  //   }
+
+  // }).catch(function (error) {
+  //   console.log(error);
+  });
+}
+
+
+</script>
+
+
+
+</body>
+</html>
+
